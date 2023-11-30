@@ -28,6 +28,8 @@ module anim_gen (
    right2_btn_u, // btn for second right bar to move down
    left1_btn_u, // btn for first left bar to move up
    left1_btn_d, // btn for first left bar to move down
+   left2_btn_u, // btn for second left bar to move up
+   left2_btn_d, // btn for second left bar to move down
    y_control, // input for y coordinate
    video_on, // input to tell we're in safe zone to draw
    rgb, // output for vga display
@@ -42,6 +44,8 @@ input right1_btn_u;
 input right1_btn_d; 
 input left1_btn_u; 
 input left1_btn_d;
+input left2_btn_u; 
+input left2_btn_d;
 input right2_btn_d;
 input right2_btn_u; 
 input[9:0] y_control; 
@@ -67,6 +71,33 @@ parameter leftbar1_w = 100; // width of the left bar1
 parameter leftbar1_v = 10; //velocity of the bar.
 wire display_leftbar1; //to send left bar1 to vga
 wire[2:0] rgb_leftbar1; //color 
+
+// leftbar 2 is divided in three parts, upper, middle and lower
+// both controlled with a single btn, via left2_btn_u and left2_btn_d respectively
+
+// they also share same left placement, thickness, width, velocity and color
+parameter leftbar2_l = 130; // the distance between bar and left side of screen
+parameter leftbar2_thickness = 10; // thickness of the bar
+parameter leftbar2_w = 60; // width of the left2 bar
+parameter leftbar2_v = 6; //velocity of the bar.
+wire[2:0] rgb_leftbar2; //color 
+
+// only differ in the top bars and displays
+
+// leftbar2_up, upper part
+integer leftbar2_up_t; // the distance between bar and top of the screen 
+integer leftbar2_up_t_next; // the distance between bar and top of the screen
+wire display_leftbar2_up; //to send left2 bar to vga
+
+// leftbar2_md, mid part
+integer leftbar2_md_t; // the distance between bar and top of the screen 
+integer leftbar2_md_t_next; // the distance between bar and top of the screen
+wire display_leftbar2_md; //to send left2 bar to vga
+
+// leftbar2_lw, lower part
+integer leftbar2_lw_t; // the distance between bar and top of the screen 
+integer leftbar2_lw_t_next; // the distance between bar and top of the screen
+wire display_leftbar2_lw; //to send left2 bar to vga
 
 // rightbar1
 integer rightbar1_t;  // the distance between bar and top side of screen
@@ -142,7 +173,7 @@ wire[8:0] y;
 wire display_goal;
 
 // mux to display
-wire[5:0] output_mux; 
+wire[6:0] output_mux; 
 
 // buffer
 reg[2:0] rgb_reg; 
@@ -163,6 +194,14 @@ initial
     rightbar1_t = 260;
     leftbar1_t_next = 260;
     leftbar1_t = 260;
+    
+    leftbar2_up_t_next = 75;
+    leftbar2_up_t = 75;
+    leftbar2_md_t_next = 210;
+    leftbar2_md_t = 210;
+    leftbar2_lw_t_next = 345;
+    leftbar2_lw_t = 345;
+    
     rightbar2_up_t_next = 75;
     rightbar2_up_t = 75;
     rightbar2_md_t_next = 210;
@@ -198,6 +237,9 @@ always @(posedge clk or posedge reset)
       rightbar2_up_t <= 75;   
       rightbar2_md_t <= 210;   
       rightbar2_lw_t <= 345;   
+      leftbar2_up_t <= 75;   
+      leftbar2_md_t <= 210;   
+      leftbar2_lw_t <= 345;   
       horizontal_velocity_reg <= 0;   
       vertical_velocity_reg <= 0;   
       end
@@ -225,6 +267,9 @@ always @(posedge clk or posedge reset)
       rightbar2_up_t <= rightbar2_up_t_next;   //assigns the next value of the upper right bars's location from the top side of the screen to it's location.
       rightbar2_md_t <= rightbar2_md_t_next;   //assigns the next value of the middle right bars's location from the top side of the screen to it's location.
       rightbar2_lw_t <= rightbar2_lw_t_next;   //assigns the next value of the lower right bars's location from the top side of the screen to it's location.
+      leftbar2_up_t <= leftbar2_up_t_next;   //assigns the next value of the upper left bars's location from the top side of the screen to it's location.
+      leftbar2_md_t <= leftbar2_md_t_next;   //assigns the next value of the middle left bars's location from the top side of the screen to it's location.
+      leftbar2_lw_t <= leftbar2_lw_t_next;   //assigns the next value of the lower left bars's location from the top side of the screen to it's location.
       scorer <= scorerNext;
       end
    end
@@ -277,6 +322,37 @@ always @(rightbar2_up_t or rightbar2_md_t or rightbar2_lw_t or refresh_rate or r
          rightbar2_up_t_next <= rightbar2_up_t;   
          rightbar2_md_t_next <= rightbar2_md_t;   
          rightbar2_lw_t_next <= rightbar2_lw_t;   
+         end
+      end
+   end
+
+// leftbar2 animation
+always @(leftbar2_up_t or leftbar2_md_t or leftbar2_lw_t or refresh_rate or left2_btn_d or left2_btn_u)
+   begin 
+   leftbar2_up_t_next <= leftbar2_up_t;//assign leftbar2_up_t to it's next value   
+   leftbar2_md_t_next <= leftbar2_md_t;//assign leftbar2_md_t to it's next value   
+   leftbar2_lw_t_next <= leftbar2_lw_t;//assign leftbar2_lw_t to it's next value   
+   if (refresh_rate === 1'b 1) //refresh_rate's posedge 
+      begin
+      // used upper bar's top for upper bound check
+      if (left2_btn_u === 1'b 1 & leftbar2_up_t > leftbar2_v) //up btn is pressed and left bar2 can move to up.
+         begin                                                   // in other words, bar is not on top edge of the screen.
+         leftbar2_up_t_next <= leftbar2_up_t - leftbar2_v; // move upper leftbar2 to up   
+         leftbar2_md_t_next <= leftbar2_md_t - leftbar2_v; // move middle leftbar2 to up   
+         leftbar2_lw_t_next <= leftbar2_lw_t - leftbar2_v; // move lower leftbar2 to up   
+         end
+      // used lower bar's top for lower bound check
+      else if (left2_btn_d === 1'b 1 & leftbar2_lw_t < 479 - leftbar2_v - leftbar2_w ) //down btn is pressed and left bar2 can move down 
+         begin                                                                             //in other words, bar is not on down edge of the screen
+         leftbar2_up_t_next <= leftbar2_up_t + leftbar2_v;   //move upper leftbar2 down.
+         leftbar2_md_t_next <= leftbar2_md_t + leftbar2_v;   //move middle leftbar2 down.
+         leftbar2_lw_t_next <= leftbar2_lw_t + leftbar2_v;   //move lower leftbar2 down.
+         end
+      else
+         begin
+         leftbar2_up_t_next <= leftbar2_up_t;   
+         leftbar2_md_t_next <= leftbar2_md_t;   
+         leftbar2_lw_t_next <= leftbar2_lw_t;   
          end
       end
    end
@@ -361,6 +437,48 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          begin
          // set the direction of horizontal velocity negative, -1 to increase speed
          horizontal_velocity_next <= horizontal_velocity - 1; 
+         end
+         
+      // if ball hits upper left bar2
+      else if (ball_c_t >= leftbar2_up_t & ball_c_t <= leftbar2_up_t + leftbar2_w & ball_c_l >= leftbar2_l + 7 & ball_c_l <= leftbar2_l + 12)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= horizontal_velocity - 1; 
+         end
+
+      // if ball hits middle left bar2
+      else if (ball_c_t >= leftbar2_md_t & ball_c_t <= leftbar2_md_t + leftbar2_w & ball_c_l >= leftbar2_l + 7 & ball_c_l <= leftbar2_l + 12)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= horizontal_velocity - 1; 
+         end
+
+      // if ball hits lower left bar2
+      else if (ball_c_t >= leftbar2_lw_t & ball_c_t <= leftbar2_lw_t + leftbar2_w & ball_c_l >= leftbar2_l + 7 & ball_c_l <= leftbar2_l + 12)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= horizontal_velocity - 1; 
+         end
+      
+      // if ball hits upper left bar2 from back
+      else if (ball_c_t >= leftbar2_up_t & ball_c_t <= leftbar2_up_t + leftbar2_w & ball_c_l >= leftbar2_l + leftbar2_thickness + 7 & ball_c_l <= leftbar2_l + leftbar2_thickness + 12)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= -horizontal_velocity - 1; 
+         end
+      
+      // if ball hits middle left bar2 from back
+      else if (ball_c_t >= leftbar2_md_t & ball_c_t <= leftbar2_md_t + leftbar2_w & ball_c_l >= leftbar2_l + leftbar2_thickness + 7 & ball_c_l <= leftbar2_l + leftbar2_thickness + 12)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= -horizontal_velocity - 1; 
+         end
+
+      // if ball hits lower left bar2 from back
+      else if (ball_c_t >= leftbar2_lw_t & ball_c_t <= leftbar2_lw_t + leftbar2_w & ball_c_l >= leftbar2_l + leftbar2_thickness + 7 & ball_c_l <= leftbar2_l + leftbar2_thickness + 12)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= -horizontal_velocity - 1; 
          end
       
       // if ball hits the left bar1 
@@ -451,6 +569,25 @@ wire display_right2;
 // checks if either part of the rightbar2 is being displayed 
 assign display_right2 = display_rightbar2_lw | display_rightbar2_md | display_rightbar2_up;
 
+// display upper rightbar2 object on the screen
+assign display_leftbar2_up = y > leftbar2_up_t & y < leftbar2_up_t + leftbar2_w & x > leftbar2_l & 
+    x < leftbar2_l + leftbar2_thickness ? 1'b 1 : 
+	1'b 0; 
+// display middle leftbar2 object on the screen
+assign display_leftbar2_md = y > leftbar2_md_t & y < leftbar2_md_t + leftbar2_w & x > leftbar2_l & 
+    x < leftbar2_l + leftbar2_thickness ? 1'b 1 : 
+	1'b 0; 
+// display lower leftbar2 object on the screen
+assign display_leftbar2_lw = y > leftbar2_lw_t & y < leftbar2_lw_t + leftbar2_w & x > leftbar2_l & 
+    x < leftbar2_l + leftbar2_thickness ? 1'b 1 : 
+	1'b 0; 
+assign rgb_leftbar2 = 3'b 110; //color of left bar1: yellow
+
+wire display_left2;
+
+// checks if either part of the leftbar2 is being displayed 
+assign display_left2 = display_leftbar2_lw | display_leftbar2_md | display_leftbar2_up;
+
 // display leftbar1 object on the screen
 assign display_leftbar1 = y > leftbar1_t & y < leftbar1_t + leftbar1_w & x > leftbar1_l &
     x < leftbar1_l + leftbar1_thickness ? 1'b 1 : 
@@ -473,15 +610,16 @@ always @(posedge clk)
    end
 
 // mux
-assign output_mux = {video_on, display_goal, display_leftbar1, display_rightbar1, display_right2, display_ball}; 
+assign output_mux = {video_on, display_goal, display_leftbar1, display_leftbar2, display_rightbar1, display_right2, display_ball}; 
 
 //assign rgb_next wrt output_mux.
-assign rgb_next = output_mux === 6'b 100000 ? 3'b 010 : 
-	output_mux === 6'b 110000 ? 3'b 111 : 
-	output_mux === 6'b 101000 ? rgb_leftbar1 : 
-	output_mux === 6'b 100100 ? rgb_rightbar1 : 
-	output_mux === 6'b 100010 ? rgb_rightbar2 :  
-	output_mux === 6'b 100001 ? rgb_ball :
+assign rgb_next = output_mux === 7'b 1000000 ? 3'b 010 : 
+	output_mux === 7'b 1100000 ? 3'b 111 : 
+	output_mux === 7'b 1010000 ? rgb_leftbar1 : 
+	output_mux === 7'b 1001000 ? rgb_leftbar2 : 
+	output_mux === 7'b 1000100 ? rgb_rightbar1 : 
+	output_mux === 7'b 1000010 ? rgb_rightbar2 :  
+	output_mux === 7'b 1000001 ? rgb_ball :
 	3'b 000;        
 
 // output part

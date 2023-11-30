@@ -24,6 +24,8 @@ module main_control(
     input logic right1_btn_d,
     input logic left1_btn_u,
     input logic left1_btn_d,
+    input logic left2_btn_u,
+    input logic left2_btn_d,
     input logic right2_btn_d,
     input logic right2_btn_u,
     input logic start_ball,
@@ -61,7 +63,7 @@ reg clk_50;
 clk_wiz_0(clk_50, reset, clk);
 
 //Module to create animations
-anim_gen(clk_50, reset, x_control,start_ball, right1_btn_u, right1_btn_d, right2_btn_d,  right2_btn_u, left1_btn_u, left1_btn_d, y_control, video_on, rgb, score_checker1, score_checker2);
+anim_gen(clk_50, reset, x_control,start_ball, right1_btn_u, right1_btn_d, right2_btn_d,  right2_btn_u, left1_btn_u, left1_btn_d, left2_btn_u, left2_btn_d, y_control, video_on, rgb, score_checker1, score_checker2);
 
 //vga synchronization module to update changing pixels and refresh the display
 sync_mod(clk_50, reset, start, y_control, x_control, horizontal_sync, vertical_sync, video_on);
