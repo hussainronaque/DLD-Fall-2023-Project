@@ -61,9 +61,9 @@ reg scorerNext;
 // leftbar1
 integer leftbar1_t; // the distance between bar and top of the screen 
 integer leftbar1_t_next; // the distance between bar and top of the screen
-parameter leftbar1_l = 20; // the distance between bar and left side of screen
+parameter leftbar1_l = 5; // the distance between bar and left side of screen
 parameter leftbar1_thickness = 10; // thickness of the bar
-parameter leftbar1_w = 120; // width of the left bar1
+parameter leftbar1_w = 100; // width of the left bar1
 parameter leftbar1_v = 10; //velocity of the bar.
 wire display_leftbar1; //to send left bar1 to vga
 wire[2:0] rgb_leftbar1; //color 
@@ -71,9 +71,9 @@ wire[2:0] rgb_leftbar1; //color
 // rightbar1
 integer rightbar1_t;  // the distance between bar and top side of screen
 integer rightbar1_t_next; // the distance between bar and top side of screen
-parameter rightbar1_l = 620; // the distance between bar and left side of screen
+parameter rightbar1_l = 625; // the distance between bar and left side of screen
 parameter rightbar1_thickness = 10; //thickness of the bar
-parameter rightbar1_w = 120; // width of the right bar1
+parameter rightbar1_w = 100; // width of the right bar1
 parameter rightbar1_v = 10; //velocity of the bar
 wire display_rightbar1; //to send right bar1 to vga
 wire[2:0] rgb_rightbar1; //color
@@ -82,7 +82,7 @@ wire[2:0] rgb_rightbar1; //color
 // both controlled with a single btn, via right2_btn_u and right2_btn_d respectively
 
 // they also share same left placement, thickness, width, velocity and color
-parameter rightbar2_l = 520; // the distance between bar and left side of screen
+parameter rightbar2_l = 500; // the distance between bar and left side of screen
 parameter rightbar2_thickness = 10; // thickness of the bar
 parameter rightbar2_w = 60; // width of the right2 bar
 parameter rightbar2_v = 7; //velocity of the bar.
@@ -370,7 +370,7 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
       ball_c_t_next <= ball_c_t + vertical_velocity_reg; // move the ball's vertical location.
       
       // if player 1 scores, in other words, ball passes through the vertical location of right bar1.
-      if (ball_c_l >= 637 & ball_c_t >= 200 & ball_c_t <= 280) 
+      if (ball_c_l >= 637 & ball_c_t >= 140 & ball_c_t <= 440) 
          begin
          ball_c_l_next <= ball_default_c_l;  //reset the ball's location to its default.  
          ball_c_t_next <= ball_default_c_t;  //reset the ball's location to its default.
@@ -383,7 +383,7 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          begin
          scoreChecker1 <= 1'b 0;   
          end
-      if (ball_c_l <= 3  & ball_c_t >= 200 & ball_c_t <= 280)// if player 2 scores, in other words, ball passes through the vertical location of left bar1.
+      if (ball_c_l <= 3  & ball_c_t >= 140 & ball_c_t <= 440)// if player 2 scores, in other words, ball passes through the vertical location of left bar1.
          begin
          ball_c_l_next <= ball_default_c_l; //reset the ball's location to its default.   
          ball_c_t_next <= ball_default_c_t; //reset the ball's location to its default.  
@@ -428,7 +428,7 @@ assign rgb_leftbar1 = 3'b 001; // color of left bar1: red
 
 
 // display goal on the screen
-assign display_goal = (y<5 | y>474) | ((y>0 & (y<200 | y>280) & (x<5 | x>634))) ? 1'b 1 : 1'b 0;
+assign display_goal = (y<5 | y>474) | ((y>0 & (y<140 | y>440) & (x<5 | x>634))) ? 1'b 1 : 1'b 0;
 
 // display ball object on the screen
 assign display_ball = (x - ball_c_l) * (x - ball_c_l) + (y - ball_c_t) * (y - ball_c_t) <= ball_r * ball_r ? 
