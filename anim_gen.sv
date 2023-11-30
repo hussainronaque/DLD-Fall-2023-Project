@@ -322,6 +322,20 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          horizontal_velocity_next <= -horizontal_velocity - 1; 
          end
       
+      // if ball hits upper right bar2 from back
+      else if (ball_c_t >= rightbar2_up_t & ball_c_t <= rightbar2_up_t + rightbar2_w & ball_c_l >= rightbar2_l + rightbar2_thickness - 3 & ball_c_l <= rightbar2_l + rightbar2_thickness + 5)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= horizontal_velocity - 1; 
+         end
+
+      // if ball hits lower right bar2 from back
+      else if (ball_c_t >= rightbar2_lw_t & ball_c_t <= rightbar2_lw_t + rightbar2_w & ball_c_l >= rightbar2_l + rightbar2_thickness - 3 & ball_c_l <= rightbar2_l + rightbar2_thickness + 5)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= horizontal_velocity - 1; 
+         end
+      
       // if ball hits the left bar1 
       else if (ball_c_t >= leftbar1_t & ball_c_t <= leftbar1_t + leftbar1_w & ball_c_l >= leftbar1_l + 7 & ball_c_l <= leftbar1_l + 12 ) 
          begin
