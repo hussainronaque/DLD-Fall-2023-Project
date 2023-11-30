@@ -301,16 +301,34 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
    scoreChecker2 <= 1'b 0; //2st player did not scored, default value  
    if (refresh_rate === 1'b 1) // posedge of refresh_rate
       begin
-      if (ball_c_t >= rightbar1_t & ball_c_t <= rightbar1_t +120 & ball_c_l >= rightbar1_l - 3 & ball_c_l <= rightbar1_l + 5) 
       // if ball hits the right bar1
+      if (ball_c_t >= rightbar1_t & ball_c_t <= rightbar1_t + rightbar1_w & ball_c_l >= rightbar1_l - 3 & ball_c_l <= rightbar1_l + 5) 
          begin
-         horizontal_velocity_next <= -horizontal_velocity; // set the direction of vertical velocity positive
+         // set the direction of horizontal velocity negative
+         horizontal_velocity_next <= -horizontal_velocity; 
          end
-      else if (ball_c_t >= leftbar1_t & ball_c_t <= leftbar1_t + 120 & ball_c_l >= leftbar1_l + 7 & ball_c_l <= leftbar1_l + 12 ) 
+         
+      // if ball hits upper right bar2
+      else if (ball_c_t >= rightbar2_up_t & ball_c_t <= rightbar2_up_t + rightbar2_w & ball_c_l >= rightbar2_up_l - 3 & ball_c_l <= rightbar2_up_l + 5)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= -horizontal_velocity - 1; 
+         end
+
+      // if ball hits lower right bar2
+      else if (ball_c_t >= rightbar2_lw_t & ball_c_t <= rightbar2_lw_t + rightbar2_w & ball_c_l >= rightbar2_lw_l - 3 & ball_c_l <= rightbar2_lw_l + 5)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= -horizontal_velocity - 1; 
+         end
+      
       // if ball hits the left bar1 
+      else if (ball_c_t >= leftbar1_t & ball_c_t <= leftbar1_t + leftbar1_w & ball_c_l >= leftbar1_l + 7 & ball_c_l <= leftbar1_l + 12 ) 
          begin
-         horizontal_velocity_next <= horizontal_velocity; //set the direction of vertical velocity positive  
+         //set the direction of horizontal velocity positive  
+         horizontal_velocity_next <= horizontal_velocity; 
          end
+      
       if (ball_c_t < 20) // if the ball hits the top side of the screen
          begin
          vertical_velocity_next <= vertical_velocity; //set the direction of vert velocity positive
