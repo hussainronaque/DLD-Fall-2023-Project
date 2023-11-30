@@ -329,28 +329,34 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          horizontal_velocity_next <= horizontal_velocity; 
          end
       
-      if (ball_c_t < 20) // if the ball hits the top side of the screen
+      // if the ball hits the top side of the screen
+      if (ball_c_t < 20) 
          begin
-         vertical_velocity_next <= vertical_velocity; //set the direction of vert velocity positive
-         // positive = right, negative = left
+         //set the direction of vert velocity positive
+         vertical_velocity_next <= vertical_velocity; 
          end
-      else if (ball_c_t > 460 ) // if the ball hits the bottom side of the screen
+      // if the ball hits the bottom side of the screen
+      else if (ball_c_t > 460 ) 
          begin
-         vertical_velocity_next <= -vertical_velocity; //set the direction of vert velocity negative.
-         // therefore, positive = bottom, negative = top
+         //set the direction of vert velocity negative.
+         vertical_velocity_next <= -vertical_velocity; 
          end
-      else if ((ball_c_l >= 620) & (ball_c_t < 190 | ball_c_t > 290)) // ball hits right borders
+      // ball hits right borders
+      else if ((ball_c_l >= 630) & (ball_c_t < 200 | ball_c_t > 280)) 
         begin
         horizontal_velocity_next <= -horizontal_velocity;
         end
-      else if ((ball_c_l === 3) & (ball_c_t < 140 | ball_c_t > 340)) // ball hits left borders
+      // ball hits left borders
+      else if ((ball_c_l <= 3) & (ball_c_t < 200 | ball_c_t > 280)) 
         begin
         horizontal_velocity_next <= horizontal_velocity;
         end 
       
       ball_c_l_next <= ball_c_l + horizontal_velocity_reg; //move the ball's horizontal location   
       ball_c_t_next <= ball_c_t + vertical_velocity_reg; // move the ball's vertical location.
-      if (ball_c_l === 637 & ball_c_t >= 140 & ball_c_t <= 340) // if player 1 scores, in other words, ball passes through the vertical location of right bar1.
+      
+      // if player 1 scores, in other words, ball passes through the vertical location of right bar1.
+      if (ball_c_l >= 637 & ball_c_t >= 200 & ball_c_t <= 280) 
          begin
          ball_c_l_next <= ball_default_c_l;  //reset the ball's location to its default.  
          ball_c_t_next <= ball_default_c_t;  //reset the ball's location to its default.
@@ -363,7 +369,7 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          begin
          scoreChecker1 <= 1'b 0;   
          end
-      if (ball_c_l === 3  & ball_c_t >= 140 & ball_c_t <= 340)// if player 2 scores, in other words, ball passes through the vertical location of left bar1.
+      if (ball_c_l <= 3  & ball_c_t >= 200 & ball_c_t <= 280)// if player 2 scores, in other words, ball passes through the vertical location of left bar1.
          begin
          ball_c_l_next <= ball_default_c_l; //reset the ball's location to its default.   
          ball_c_t_next <= ball_default_c_t; //reset the ball's location to its default.  
@@ -408,8 +414,7 @@ assign rgb_leftbar1 = 3'b 001; // color of left bar1: red
 
 
 // display goal on the screen
-// assign display_goal = (y >= 140 & x <= 340 & (x >= 637 | x <= 3)) ? 1'b 1 : 1'b 0;
-assign display_goal = (y<5 | y>450) | ((y>0 & (y<200 | y>280) & (x<5 | x>630))) ? 1'b 1 : 1'b 0;
+assign display_goal = (y<5 | y>474) | ((y>0 & (y<200 | y>280) & (x<5 | x>634))) ? 1'b 1 : 1'b 0;
 
 // display ball object on the screen
 assign display_ball = (x - ball_c_l) * (x - ball_c_l) + (y - ball_c_t) * (y - ball_c_t) <= ball_r * ball_r ? 
