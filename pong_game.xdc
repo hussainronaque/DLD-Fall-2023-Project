@@ -34,6 +34,11 @@ set_property PACKAGE_PIN W13 [get_ports right2_btn_u]
 	set_property IOSTANDARD LVCMOS33 [get_ports right2_btn_u]
 set_property PACKAGE_PIN W14 [get_ports right2_btn_d]						
 	set_property IOSTANDARD LVCMOS33 [get_ports right2_btn_d]
+	
+set_property PACKAGE_PIN T2 [get_ports left2_btn_u]						
+	set_property IOSTANDARD LVCMOS33 [get_ports left2_btn_u]
+set_property PACKAGE_PIN T3 [get_ports left2_btn_d]						
+	set_property IOSTANDARD LVCMOS33 [get_ports left2_btn_d]
 
 #VGA Connector
 set_property PACKAGE_PIN G19 [get_ports {rgb[2]}]				

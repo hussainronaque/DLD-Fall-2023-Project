@@ -440,49 +440,49 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          end
          
       // if ball hits upper left bar2
-      else if (ball_c_t >= leftbar2_up_t & ball_c_t <= leftbar2_up_t + leftbar2_w & ball_c_l >= leftbar2_l + 7 & ball_c_l <= leftbar2_l + 12)
+      else if (ball_c_t >= leftbar2_up_t & ball_c_t <= leftbar2_up_t + leftbar2_w & ball_c_l >= leftbar2_l + 10 & ball_c_l <= leftbar2_l + 15)
          begin
          // set the direction of horizontal velocity negative, -1 to increase speed
          horizontal_velocity_next <= horizontal_velocity - 1; 
          end
 
       // if ball hits middle left bar2
-      else if (ball_c_t >= leftbar2_md_t & ball_c_t <= leftbar2_md_t + leftbar2_w & ball_c_l >= leftbar2_l + 7 & ball_c_l <= leftbar2_l + 12)
+      else if (ball_c_t >= leftbar2_md_t & ball_c_t <= leftbar2_md_t + leftbar2_w & ball_c_l >= leftbar2_l + 10 & ball_c_l <= leftbar2_l + 15)
          begin
          // set the direction of horizontal velocity negative, -1 to increase speed
          horizontal_velocity_next <= horizontal_velocity - 1; 
          end
 
       // if ball hits lower left bar2
-      else if (ball_c_t >= leftbar2_lw_t & ball_c_t <= leftbar2_lw_t + leftbar2_w & ball_c_l >= leftbar2_l + 7 & ball_c_l <= leftbar2_l + 12)
+      else if (ball_c_t >= leftbar2_lw_t & ball_c_t <= leftbar2_lw_t + leftbar2_w & ball_c_l >= leftbar2_l + 10 & ball_c_l <= leftbar2_l + 15)
          begin
          // set the direction of horizontal velocity negative, -1 to increase speed
          horizontal_velocity_next <= horizontal_velocity - 1; 
          end
       
       // if ball hits upper left bar2 from back
-      else if (ball_c_t >= leftbar2_up_t & ball_c_t <= leftbar2_up_t + leftbar2_w & ball_c_l >= leftbar2_l + leftbar2_thickness + 7 & ball_c_l <= leftbar2_l + leftbar2_thickness + 12)
+      else if (ball_c_t >= leftbar2_up_t & ball_c_t <= leftbar2_up_t + leftbar2_w & ball_c_l >= leftbar2_l - leftbar2_thickness + 10 & ball_c_l <= leftbar2_l - leftbar2_thickness + 15)
          begin
          // set the direction of horizontal velocity negative, -1 to increase speed
-         horizontal_velocity_next <= -horizontal_velocity - 1; 
+         horizontal_velocity_next <= -horizontal_velocity + 1; 
          end
       
       // if ball hits middle left bar2 from back
-      else if (ball_c_t >= leftbar2_md_t & ball_c_t <= leftbar2_md_t + leftbar2_w & ball_c_l >= leftbar2_l + leftbar2_thickness + 7 & ball_c_l <= leftbar2_l + leftbar2_thickness + 12)
+      else if (ball_c_t >= leftbar2_md_t & ball_c_t <= leftbar2_md_t + leftbar2_w & ball_c_l >= leftbar2_l - leftbar2_thickness + 10 & ball_c_l <= leftbar2_l - leftbar2_thickness + 15)
          begin
          // set the direction of horizontal velocity negative, -1 to increase speed
-         horizontal_velocity_next <= -horizontal_velocity - 1; 
+         horizontal_velocity_next <= -horizontal_velocity + 1; 
          end
 
       // if ball hits lower left bar2 from back
-      else if (ball_c_t >= leftbar2_lw_t & ball_c_t <= leftbar2_lw_t + leftbar2_w & ball_c_l >= leftbar2_l + leftbar2_thickness + 7 & ball_c_l <= leftbar2_l + leftbar2_thickness + 12)
+      else if (ball_c_t >= leftbar2_lw_t & ball_c_t <= leftbar2_lw_t + leftbar2_w & ball_c_l >= leftbar2_l - leftbar2_thickness + 10 & ball_c_l <= leftbar2_l - leftbar2_thickness + 15)
          begin
          // set the direction of horizontal velocity negative, -1 to increase speed
-         horizontal_velocity_next <= -horizontal_velocity - 1; 
+         horizontal_velocity_next <= -horizontal_velocity + 1; 
          end
       
       // if ball hits the left bar1 
-      else if (ball_c_t >= leftbar1_t & ball_c_t <= leftbar1_t + leftbar1_w & ball_c_l >= leftbar1_l + 7 & ball_c_l <= leftbar1_l + 12 ) 
+      else if (ball_c_t >= leftbar1_t & ball_c_t <= leftbar1_t + leftbar1_w & ball_c_l >= leftbar1_l + 10 & ball_c_l <= leftbar1_l + 15 ) 
          begin
          //set the direction of horizontal velocity positive  
          horizontal_velocity_next <= horizontal_velocity; 
@@ -581,7 +581,7 @@ assign display_leftbar2_md = y > leftbar2_md_t & y < leftbar2_md_t + leftbar2_w 
 assign display_leftbar2_lw = y > leftbar2_lw_t & y < leftbar2_lw_t + leftbar2_w & x > leftbar2_l & 
     x < leftbar2_l + leftbar2_thickness ? 1'b 1 : 
 	1'b 0; 
-assign rgb_leftbar2 = 3'b 110; //color of left bar1: yellow
+assign rgb_leftbar2 = 3'b 011; //color of left bar1: cyan
 
 wire display_left2;
 
@@ -610,7 +610,7 @@ always @(posedge clk)
    end
 
 // mux
-assign output_mux = {video_on, display_goal, display_leftbar1, display_leftbar2, display_rightbar1, display_right2, display_ball}; 
+assign output_mux = {video_on, display_goal, display_leftbar1, display_left2, display_rightbar1, display_right2, display_ball}; 
 
 //assign rgb_next wrt output_mux.
 assign rgb_next = output_mux === 7'b 1000000 ? 3'b 010 : 
