@@ -85,7 +85,7 @@ wire[2:0] rgb_rightbar1; //color
 parameter rightbar2_l = 500; // the distance between bar and left side of screen
 parameter rightbar2_thickness = 10; // thickness of the bar
 parameter rightbar2_w = 60; // width of the right2 bar
-parameter rightbar2_v = 7; //velocity of the bar.
+parameter rightbar2_v = 6; //velocity of the bar.
 wire[2:0] rgb_rightbar2; //color 
 
 // only differ in the top bars and displays
@@ -94,6 +94,11 @@ wire[2:0] rgb_rightbar2; //color
 integer rightbar2_up_t; // the distance between bar and top of the screen 
 integer rightbar2_up_t_next; // the distance between bar and top of the screen
 wire display_rightbar2_up; //to send right2 bar to vga
+
+// rightmidbar2_md, mid part
+integer rightbar2_md_t; // the distance between bar and top of the screen 
+integer rightbar2_md_t_next; // the distance between bar and top of the screen
+wire display_rightbar2_md; //to send right2 bar to vga
 
 // rightmidbar2_lw, lower part
 integer rightbar2_lw_t; // the distance between bar and top of the screen 
@@ -158,10 +163,12 @@ initial
     rightbar1_t = 260;
     leftbar1_t_next = 260;
     leftbar1_t = 260;
-    rightbar2_up_t_next = 220;
-    rightbar2_up_t = 220;
-    rightbar2_lw_t_next = 340;
-    rightbar2_lw_t = 340;
+    rightbar2_up_t_next = 75;
+    rightbar2_up_t = 75;
+    rightbar2_md_t_next = 210;
+    rightbar2_md_t = 210;
+    rightbar2_lw_t_next = 345;
+    rightbar2_lw_t = 345;
    end
 assign x = x_control; 
 assign y = y_control; 
@@ -188,8 +195,9 @@ always @(posedge clk or posedge reset)
       ball_c_t <= ball_default_c_t;   
       rightbar1_t <= 260;   
       leftbar1_t <= 260;   
-      rightbar2_up_t <= 220;   
-      rightbar2_lw_t <= 340;   
+      rightbar2_up_t <= 75;   
+      rightbar2_md_t <= 210;   
+      rightbar2_lw_t <= 345;   
       horizontal_velocity_reg <= 0;   
       vertical_velocity_reg <= 0;   
       end
@@ -215,6 +223,7 @@ always @(posedge clk or posedge reset)
       rightbar1_t <= rightbar1_t_next;   //assigns the next value of the right bar1s's location from the top side of the screen to it's location.
       leftbar1_t <= leftbar1_t_next;   //assigns the next value of the left bar1s's location from the top side of the screen to it's location.
       rightbar2_up_t <= rightbar2_up_t_next;   //assigns the next value of the upper right bars's location from the top side of the screen to it's location.
+      rightbar2_md_t <= rightbar2_md_t_next;   //assigns the next value of the middle right bars's location from the top side of the screen to it's location.
       rightbar2_lw_t <= rightbar2_lw_t_next;   //assigns the next value of the lower right bars's location from the top side of the screen to it's location.
       scorer <= scorerNext;
       end
@@ -242,9 +251,10 @@ always @(rightbar1_t or refresh_rate or right1_btn_d or right1_btn_u)
    end
 
 // rightbar2 animation
-always @(rightbar2_up_t or rightbar2_lw_t or refresh_rate or right2_btn_d or right2_btn_u)
+always @(rightbar2_up_t or rightbar2_md_t or rightbar2_lw_t or refresh_rate or right2_btn_d or right2_btn_u)
    begin 
    rightbar2_up_t_next <= rightbar2_up_t;//assign rightbar2_up_t to it's next value   
+   rightbar2_md_t_next <= rightbar2_md_t;//assign rightbar2_md_t to it's next value   
    rightbar2_lw_t_next <= rightbar2_lw_t;//assign rightbar2_lw_t to it's next value   
    if (refresh_rate === 1'b 1) //refresh_rate's posedge 
       begin
@@ -252,17 +262,20 @@ always @(rightbar2_up_t or rightbar2_lw_t or refresh_rate or right2_btn_d or rig
       if (right2_btn_u === 1'b 1 & rightbar2_up_t > rightbar2_v) //up btn is pressed and right bar2 can move to up.
          begin                                                   // in other words, bar is not on top edge of the screen.
          rightbar2_up_t_next <= rightbar2_up_t - rightbar2_v; // move upper rightbar2 to up   
+         rightbar2_md_t_next <= rightbar2_md_t - rightbar2_v; // move middle rightbar2 to up   
          rightbar2_lw_t_next <= rightbar2_lw_t - rightbar2_v; // move lower rightbar2 to up   
          end
       // used lower bar's top for lower bound check
       else if (right2_btn_d === 1'b 1 & rightbar2_lw_t < 479 - rightbar2_v - rightbar2_w ) //down btn is pressed and right bar2 can move down 
          begin                                                                             //in other words, bar is not on down edge of the screen
          rightbar2_up_t_next <= rightbar2_up_t + rightbar2_v;   //move upper rightbar2 down.
+         rightbar2_md_t_next <= rightbar2_md_t + rightbar2_v;   //move middle rightbar2 down.
          rightbar2_lw_t_next <= rightbar2_lw_t + rightbar2_v;   //move lower rightbar2 down.
          end
       else
          begin
          rightbar2_up_t_next <= rightbar2_up_t;   
+         rightbar2_md_t_next <= rightbar2_md_t;   
          rightbar2_lw_t_next <= rightbar2_lw_t;   
          end
       end
@@ -315,6 +328,13 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          horizontal_velocity_next <= -horizontal_velocity - 1; 
          end
 
+      // if ball hits middle right bar2
+      else if (ball_c_t >= rightbar2_md_t & ball_c_t <= rightbar2_md_t + rightbar2_w & ball_c_l >= rightbar2_l - 3 & ball_c_l <= rightbar2_l + 5)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= -horizontal_velocity - 1; 
+         end
+
       // if ball hits lower right bar2
       else if (ball_c_t >= rightbar2_lw_t & ball_c_t <= rightbar2_lw_t + rightbar2_w & ball_c_l >= rightbar2_l - 3 & ball_c_l <= rightbar2_l + 5)
          begin
@@ -324,6 +344,13 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
       
       // if ball hits upper right bar2 from back
       else if (ball_c_t >= rightbar2_up_t & ball_c_t <= rightbar2_up_t + rightbar2_w & ball_c_l >= rightbar2_l + rightbar2_thickness - 3 & ball_c_l <= rightbar2_l + rightbar2_thickness + 5)
+         begin
+         // set the direction of horizontal velocity negative, -1 to increase speed
+         horizontal_velocity_next <= horizontal_velocity - 1; 
+         end
+      
+      // if ball hits middle right bar2 from back
+      else if (ball_c_t >= rightbar2_md_t & ball_c_t <= rightbar2_md_t + rightbar2_w & ball_c_l >= rightbar2_l + rightbar2_thickness - 3 & ball_c_l <= rightbar2_l + rightbar2_thickness + 5)
          begin
          // set the direction of horizontal velocity negative, -1 to increase speed
          horizontal_velocity_next <= horizontal_velocity - 1; 
@@ -370,7 +397,7 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
       ball_c_t_next <= ball_c_t + vertical_velocity_reg; // move the ball's vertical location.
       
       // if player 1 scores, in other words, ball passes through the vertical location of right bar1.
-      if (ball_c_l >= 637 & ball_c_t >= 140 & ball_c_t <= 440) 
+      if (ball_c_l >= 637 & ball_c_t >= 140 & ball_c_t <= 340) 
          begin
          ball_c_l_next <= ball_default_c_l;  //reset the ball's location to its default.  
          ball_c_t_next <= ball_default_c_t;  //reset the ball's location to its default.
@@ -383,7 +410,7 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          begin
          scoreChecker1 <= 1'b 0;   
          end
-      if (ball_c_l <= 3  & ball_c_t >= 140 & ball_c_t <= 440)// if player 2 scores, in other words, ball passes through the vertical location of left bar1.
+      if (ball_c_l <= 3  & ball_c_t >= 140 & ball_c_t <= 340)// if player 2 scores, in other words, ball passes through the vertical location of left bar1.
          begin
          ball_c_l_next <= ball_default_c_l; //reset the ball's location to its default.   
          ball_c_t_next <= ball_default_c_t; //reset the ball's location to its default.  
@@ -409,6 +436,10 @@ assign rgb_rightbar1 = 3'b 100; //color of right bar1: blue
 assign display_rightbar2_up = y > rightbar2_up_t & y < rightbar2_up_t + rightbar2_w & x > rightbar2_l & 
     x < rightbar2_l + rightbar2_thickness ? 1'b 1 : 
 	1'b 0; 
+// display middle rightbar2 object on the screen
+assign display_rightbar2_md = y > rightbar2_md_t & y < rightbar2_md_t + rightbar2_w & x > rightbar2_l & 
+    x < rightbar2_l + rightbar2_thickness ? 1'b 1 : 
+	1'b 0; 
 // display lower rightbar2 object on the screen
 assign display_rightbar2_lw = y > rightbar2_lw_t & y < rightbar2_lw_t + rightbar2_w & x > rightbar2_l & 
     x < rightbar2_l + rightbar2_thickness ? 1'b 1 : 
@@ -418,7 +449,7 @@ assign rgb_rightbar2 = 3'b 110; //color of right bar1: yellow
 wire display_right2;
 
 // checks if either part of the rightbar2 is being displayed 
-assign display_right2 = display_rightbar2_lw | display_rightbar2_up;
+assign display_right2 = display_rightbar2_lw | display_rightbar2_md | display_rightbar2_up;
 
 // display leftbar1 object on the screen
 assign display_leftbar1 = y > leftbar1_t & y < leftbar1_t + leftbar1_w & x > leftbar1_l &
@@ -428,7 +459,7 @@ assign rgb_leftbar1 = 3'b 001; // color of left bar1: red
 
 
 // display goal on the screen
-assign display_goal = (y<5 | y>474) | ((y>0 & (y<140 | y>440) & (x<5 | x>634))) ? 1'b 1 : 1'b 0;
+assign display_goal = (y<5 | y>474) | ((y>0 & (y<140 | y>340) & (x<5 | x>634))) ? 1'b 1 : 1'b 0;
 
 // display ball object on the screen
 assign display_ball = (x - ball_c_l) * (x - ball_c_l) + (y - ball_c_t) * (y - ball_c_t) <= ball_r * ball_r ? 
