@@ -84,7 +84,7 @@ wire[2:0] rgb_rightbar1; //color
 // they also share same left placement, thickness, width, velocity and color
 parameter rightbar2_l = 520; // the distance between bar and left side of screen
 parameter rightbar2_thickness = 10; // thickness of the bar
-parameter rightbar2_w = 40; // width of the right2 bar
+parameter rightbar2_w = 60; // width of the right2 bar
 parameter rightbar2_v = 7; //velocity of the bar.
 wire[2:0] rgb_rightbar2; //color 
 
@@ -158,10 +158,10 @@ initial
     rightbar1_t = 260;
     leftbar1_t_next = 260;
     leftbar1_t = 260;
-    rightbar2_up_t_next = 250;
-    rightbar2_up_t = 250;
-    rightbar2_lw_t_next = 350;
-    rightbar2_lw_t = 350;
+    rightbar2_up_t_next = 220;
+    rightbar2_up_t = 220;
+    rightbar2_lw_t_next = 340;
+    rightbar2_lw_t = 340;
    end
 assign x = x_control; 
 assign y = y_control; 
@@ -188,8 +188,8 @@ always @(posedge clk or posedge reset)
       ball_c_t <= ball_default_c_t;   
       rightbar1_t <= 260;   
       leftbar1_t <= 260;   
-      rightbar2_up_t <= 250;   
-      rightbar2_lw_t <= 350;   
+      rightbar2_up_t <= 220;   
+      rightbar2_lw_t <= 340;   
       horizontal_velocity_reg <= 0;   
       vertical_velocity_reg <= 0;   
       end
@@ -309,14 +309,14 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          end
          
       // if ball hits upper right bar2
-      else if (ball_c_t >= rightbar2_up_t & ball_c_t <= rightbar2_up_t + rightbar2_w & ball_c_l >= rightbar2_up_l - 3 & ball_c_l <= rightbar2_up_l + 5)
+      else if (ball_c_t >= rightbar2_up_t & ball_c_t <= rightbar2_up_t + rightbar2_w & ball_c_l >= rightbar2_l - 3 & ball_c_l <= rightbar2_l + 5)
          begin
          // set the direction of horizontal velocity negative, -1 to increase speed
          horizontal_velocity_next <= -horizontal_velocity - 1; 
          end
 
       // if ball hits lower right bar2
-      else if (ball_c_t >= rightbar2_lw_t & ball_c_t <= rightbar2_lw_t + rightbar2_w & ball_c_l >= rightbar2_lw_l - 3 & ball_c_l <= rightbar2_lw_l + 5)
+      else if (ball_c_t >= rightbar2_lw_t & ball_c_t <= rightbar2_lw_t + rightbar2_w & ball_c_l >= rightbar2_l - 3 & ball_c_l <= rightbar2_l + 5)
          begin
          // set the direction of horizontal velocity negative, -1 to increase speed
          horizontal_velocity_next <= -horizontal_velocity - 1; 
@@ -408,7 +408,8 @@ assign rgb_leftbar1 = 3'b 001; // color of left bar1: red
 
 
 // display goal on the screen
-assign display_goal = (y >= 140 & x <= 340 & (x >= 637 | x <= 3)) ? 1'b 1 : 1'b 0;
+// assign display_goal = (y >= 140 & x <= 340 & (x >= 637 | x <= 3)) ? 1'b 1 : 1'b 0;
+assign display_goal = (y<5 | y>450) | ((y>0 & (y<200 | y>280) & (x<5 | x>630))) ? 1'b 1 : 1'b 0;
 
 // display ball object on the screen
 assign display_ball = (x - ball_c_l) * (x - ball_c_l) + (y - ball_c_t) * (y - ball_c_t) <= ball_r * ball_r ? 
