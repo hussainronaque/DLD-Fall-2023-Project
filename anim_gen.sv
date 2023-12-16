@@ -32,7 +32,8 @@ module anim_gen (
    left2_btn_d, // btn for second left bar to move down
    y_control, // input for y coordinate
    video_on, // input to tell we're in safe zone to draw
-   rgb, // output for vga display
+   // output for vga display
+   rgb,
    score1, // output for score on seven segment display
    score2); // output for score on seven segment display
  
@@ -50,7 +51,7 @@ input right2_btn_d;
 input right2_btn_u; 
 input[9:0] y_control; 
 input video_on; 
-output[2:0] rgb; 
+output [2:0] rgb;
 output score1; 
 output score2; 
 
@@ -141,13 +142,16 @@ integer ball_c_l; // the distance between the ball and left side of the screen
 integer ball_c_l_next; // the distance between the ball and left side of the screen 
 integer ball_c_t; // the distance between the ball and top side of the screen
 integer ball_c_t_next; // the distance between the ball and top side of the screen
-parameter ball_default_c_t = 300; // default value of the distance between the ball and left side of the screen
-parameter ball_default_c_l = 300; // default value of the distance between the ball and left side of the screen
+parameter ball_default_c_t = 240; // default value of the distance between the ball and left side of the screen
+parameter ball_default_c_l = 320; // default value of the distance between the ball and left side of the screen
 parameter ball_r = 8; //radius of the ball.
 parameter horizontal_velocity = 3; // Horizontal velocity of the ball  
 parameter vertical_velocity = 3; //Vertical velocity of the ball
 wire display_ball; //to send ball to vga 
 wire[2:0] rgb_ball;//color 
+wire[2:0] rgb_score;
+
+
 
 // Note: vertical velocity indicates moving right (if +ve)
 //       horizontal velocity indicates moving down (if +ve)
@@ -172,6 +176,8 @@ wire[8:0] y;
 // wall registers
 wire display_goal;
 
+wire display_score;
+
 // mux to display
 wire[6:0] output_mux; 
 
@@ -180,16 +186,18 @@ reg[2:0] rgb_reg;
 
 // x,y pixel cursor
 wire[2:0] rgb_next; 
+wire [3:0] text_on;
+
 
 initial
     begin
     vertical_velocity_next = 0;
     vertical_velocity_reg = 0;
     horizontal_velocity_reg = 0;
-    ball_c_t_next = 300;
-    ball_c_t = 300;
-    ball_c_l_next = 300;  
-    ball_c_l = 300; 
+    ball_c_t_next = 240;
+    ball_c_t = 240;
+    ball_c_l_next = 320;  
+    ball_c_l = 320; 
     rightbar1_t_next = 260;
     rightbar1_t = 260;
     leftbar1_t_next = 260;
@@ -241,7 +249,7 @@ always @(posedge clk or posedge reset)
       leftbar2_md_t <= 210;   
       leftbar2_lw_t <= 345;   
       horizontal_velocity_reg <= 0;   
-      vertical_velocity_reg <= 0;   
+      vertical_velocity_reg <= 0;
       end
    else 
       begin
@@ -522,7 +530,8 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          horizontal_velocity_next <= 0; //stop the ball.  
          vertical_velocity_next <= 0; //stop the ball
          scorerNext <= 1'b 0;   
-         scoreChecker1 <= 1'b 1; //1st player scored.  
+         scoreChecker1 <= 1'b 1; //1st player scored. 
+         
          end
       else
          begin
@@ -535,7 +544,8 @@ always @(refresh_rate or ball_c_l or ball_c_t or horizontal_velocity_reg or vert
          horizontal_velocity_next <= 0; //stop the ball  
          vertical_velocity_next <= 0; //stop the ball  
          scorerNext <= 1'b 1;   
-         scoreChecker2 <= 1'b 1;  // player 2 scored  
+         scoreChecker2 <= 1'b 1;  // player 2 scored 
+         
          end
       else
          begin
@@ -596,13 +606,17 @@ assign rgb_leftbar1 = 3'b 001; // color of left bar1: red
 
 
 // display goal on the screen
-assign display_goal = (y<5 | y>474) | ((y>0 & (y<140 | y>340) & (x<5 | x>634))) ? 1'b 1 : 1'b 0;
+assign display_goal = (y < 5) | (y > 474) | ((y > 0) && (y < 140 | y > 340) && (x < 5 | x > 634)) | (x >= 318 && x<=320) | (x<60 && (y>=140 && y<=340)) |(x>580 && (y>=140 && y<=340))  ? 1'b 1 : 1'b 0;
 
 // display ball object on the screen
 assign display_ball = (x - ball_c_l) * (x - ball_c_l) + (y - ball_c_t) * (y - ball_c_t) <= ball_r * ball_r ? 
     1'b 1 : 
 	1'b 0; 
-assign rgb_ball = 3'b 111; //color of ball: white
+assign rgb_ball = 3'b 100; //color of ball: RED
+
+// display score player 1
+
+
 
 always @(posedge clk)
    begin 
@@ -620,11 +634,10 @@ assign rgb_next = output_mux === 7'b 1000000 ? 3'b 010 :
 	output_mux === 7'b 1000100 ? rgb_rightbar1 : 
 	output_mux === 7'b 1000010 ? rgb_rightbar2 :  
 	output_mux === 7'b 1000001 ? rgb_ball :
-	3'b 000;        
-
+	3'b 000;     
 // output part
 assign rgb = rgb_reg; 
+
 assign score1 = scoreChecker1; 
 assign score2 = scoreChecker2; 
-
 endmodule // end of module anim_gen
