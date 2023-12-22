@@ -127,31 +127,6 @@ assign red = state == 0 ? red1 : {rgb[2], rgb[2], rgb[2], rgb[2]};
 assign green = state == 0 ? green1 : {rgb[1], rgb[1], rgb[1], rgb[1]};
 assign blue = state == 0 ? blue1 : {rgb[0], rgb[0], rgb[0], rgb[0]};
 
-//always_ff @(posedge clk_50)
-//begin
-//    if (screen == 0) begin
-//        red_reg<=red1;
-//        blue_reg<=blue1;
-//        green_reg<=green1;
-//        batti1 <= 1;
-//        batti2 <= 0;
-//    end
-//    else if (screen == 1) begin
-//        red_reg<=rgb[2];
-//        blue_reg<=rgb[0];
-//        green_reg<=rgb[1];
-//        batti2 <= 1;
-//        batti1 <= 0;
-//    end
-//end
-
-//initial 
-//    begin
-//        red = red_reg;
-//        green = green_reg;
-//        blue = blue_reg;
-//    end
-
 
 //Module to display the scores on the 7seg display of basys3
 SevenSegment(clk_50,player1_score,'b0000,'b0000,player2_score,a, b, c, d, e, f, g, dp,an);
