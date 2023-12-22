@@ -21,7 +21,9 @@ This project implements a foosball-like game on the BASYS-3 FPGA board using Viv
 - Scores are tracked for both Player 1 (top bar) and Player 2 (bottom bar).
 - Scoring logic updates scores based on game events.
 
-- ## Prerequisites
+### Setup Guide
+
+## Prerequisites
 1. **Vivado Installation**: Ensure that Vivado, the FPGA design and implementation tool, is installed on your system. You can download it from the official Xilinx website.
 2. **BASYS-3 FPGA Board**: Have the BASYS-3 FPGA board ready for the implementation of the foosball game.
    
